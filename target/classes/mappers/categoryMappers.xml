@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CategoryMapper">
+  <select id="getCategoryList1" resultType="com.sh.dto.CategoryListDto">
+  	<![CDATA[
+  		SELECT  category_idx AS "categoryIdx",
+		        category_name AS "categoryName"
+		FROM    all_categories
+  	]]>
+  </select>
+  <select id="getCategoryList2" resultType="com.sh.dto.CategoryListDto">
+  	<![CDATA[
+  		SELECT  category_idx AS "categoryIdx",
+		        category_name AS "categoryName"
+		FROM    middle_categories
+		WHERE   parent_id = #{id}
+  	]]>
+  </select>
+  <select id="getCategoryList3" resultType="com.sh.dto.CategoryListDto">
+  	<![CDATA[
+  		SELECT  category_idx AS "categoryIdx",
+		        category_name AS "categoryName"
+		FROM    sub_categories
+		WHERE   parent_id = #{id}
+  	]]>
+  </select>
+  <select id="getAllCategoryName" resultType="java.lang.String">
+  	<![CDATA[
+  		SELECT  category_name AS "categoryName"
+		FROM    all_categories
+		WHERE   category_idx = #{categoryIdx}
+  	]]>
+  </select>
+  <select id="getMiddleCategoryName" resultType="java.lang.String">
+  	<![CDATA[
+  		SELECT  category_name AS "categoryName"
+		FROM    middle_categories
+		WHERE   category_idx = #{categoryIdx}
+  	]]>
+  </select>
+  <select id="getSubCategoryName" resultType="java.lang.String">
+  	<![CDATA[
+  		SELECT  category_name AS "categoryName"
+		FROM    sub_categories
+		WHERE   category_idx = #{categoryIdx}
+  	]]>
+  </select>
+  <select id="getMiddleCategoryParentId" resultType="Integer">
+  	<![CDATA[
+  		SELECT  parent_id
+		FROM    middle_categories
+		WHERE   category_idx = #{categoryIdx}
+  	]]>
+  </select>
+  <select id="getSubCategoryParentId" resultType="Integer">
+  	<![CDATA[
+  		SELECT  parent_id
+		FROM    sub_categories
+		WHERE   category_idx = #{categoryIdx}
+  	]]>
+  </select>
+</mapper>

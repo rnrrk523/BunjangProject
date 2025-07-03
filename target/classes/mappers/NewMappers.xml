@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="NewMapper">
+	<select id="getAllCategoryInfo" resultType="com.sh.dto.CategoryDto">
+		<![CDATA[
+			SELECT
+			    CATEGORY_IDX AS "categoryIdx",
+			    CATEGORY_NAME AS "categoryName"
+			FROM ALL_CATEGORIES
+		]]>
+	</select>
+	<select id="getMiddleCategoryInfo" resultType="com.sh.dto.CategoryDto">
+		<![CDATA[
+			SELECT
+			    CATEGORY_IDX AS "categoryIdx",
+			    CATEGORY_NAME AS "categoryName"
+			FROM MIDDLE_CATEGORIES
+			WHERE PARENT_ID = #{pno}
+		]]>
+	</select>
+	<select id="getSmallCategoryInfo" resultType="com.sh.dto.CategoryDto">
+		<![CDATA[
+			SELECT
+			    CATEGORY_IDX AS "categoryIdx",
+			    CATEGORY_NAME AS "categoryName"
+			FROM SUB_CATEGORIES
+			WHERE PARENT_ID = #{pno}
+		]]>
+	</select>
+	<insert id="insertProduct" parameterType="com.sh.dto.InsertProductDto">
+		<![CDATA[
+		  INSERT INTO PRODUCT(
+		    PRODUCT_IDX,
+		    STORE_IDX,
+		    PRODUCT_NAME,
+		    PRICE,
+		    PRODUCT_IMG1,
+		    PRODUCT_IMG2,
+		    PRODUCT_IMG3,
+		    ALL_CATEGORY_IDX,
+		    MIDDLE_CATEGORY_IDX,
+		    SUB_CATEGORY_IDX,
+		    PRODUCT_SIZE,
+		    PRODUCT_INFO,
+		    PRODUCT_STATE
+		  ) VALUES (
+		    PRODUCT_SEQ.nextval,
+		    #{storeIdx},
+		    #{productName},
+		    #{price},
+		    #{productImg1},
+		    #{productImg2},
+		    #{productImg3},
+		    #{allCategoryIdx},
+		    #{middleCategoryIdx, jdbcType=INTEGER},
+		    #{subCategoryIdx, jdbcType=INTEGER},
+		    #{productSize},
+		    #{productInfo},
+		    #{productState}
+	  	)
+	    ]]>
+	</insert>
+</mapper>

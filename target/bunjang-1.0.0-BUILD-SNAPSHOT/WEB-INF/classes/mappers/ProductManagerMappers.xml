@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ProductManagerMapper">
+    <select id="getProductManagerInfo" resultType="com.sh.dto.ManagerDto" parameterType="map">
+		<![CDATA[
+		    SELECT 
+			    main.productIdx,
+			    img.product_img1 AS "productImg1",
+			    main.productName,
+			    main.price,
+			    main.saleStartDate,
+			    main.saleYn,
+			    main.jjimCount,
+			    main.rn
+			FROM (
+			    SELECT  
+			        p.PRODUCT_IDX AS productIdx,
+			        p.PRODUCT_NAME AS productName,
+			        p.PRICE AS price,
+			        CASE 
+			          WHEN (SYSDATE - p.sale_start_date) * 24 * 60 * 60 < 60 THEN 
+			              TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24 * 60 * 60)) || '초 전'
+			          WHEN (SYSDATE - p.sale_start_date) * 24 * 60 < 60 THEN 
+			              TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24 * 60)) || '분 전'
+			          WHEN (SYSDATE - p.sale_start_date) * 24 < 24 THEN 
+			              TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24)) || '시간 전'
+			          WHEN SYSDATE - p.sale_start_date >= 7 AND SYSDATE - p.sale_start_date < 30 THEN 
+			              TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 7)) || '주 전'
+			          WHEN SYSDATE - p.sale_start_date >= 30 AND SYSDATE - p.sale_start_date < 365 THEN 
+			              TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 30)) || '달 전'
+			          WHEN SYSDATE - p.sale_start_date >= 365 THEN 
+			              TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 365)) || '년 전'
+			          ELSE 
+			              TO_CHAR(FLOOR(SYSDATE - p.sale_start_date)) || '일 전'
+			        END  AS saleStartDate,
+			        p.SALE_YN AS saleYn,
+			        COUNT(j.PRODUCT_IDX) AS jjimCount,
+			        ROW_NUMBER() OVER (ORDER BY p.SALE_START_DATE DESC) AS rn
+			    FROM PRODUCT p
+			    LEFT JOIN JJIM j ON p.PRODUCT_IDX = j.PRODUCT_IDX
+			    WHERE p.STORE_IDX = #{storeIdx}
+			    ${searchKeywordCondition}
+			    ${sort}
+			    GROUP BY 
+			        p.PRODUCT_IDX,
+			        p.PRODUCT_NAME,
+			        p.PRICE,
+			        p.SALE_START_DATE,
+			        p.SALE_YN
+			) main
+			LEFT JOIN (
+			    SELECT PRODUCT_IDX, PRODUCT_IMG1
+			    FROM PRODUCT
+			) img ON main.productIdx = img.PRODUCT_IDX
+			WHERE main.rn BETWEEN #{startRow} AND #{endRow}
+		]]>
+	</select>
+	<select id="getProductManagerCount" resultType="int" parameterType="map">
+	  <![CDATA[
+		  SELECT COUNT(*) 
+		  FROM PRODUCT p
+		  WHERE p.STORE_IDX = #{storeIdx}
+		  ${searchKeywordCondition}
+		  ${sort}
+	  ]]>
+	</select>
+	<delete id="deleteProduct">
+	  	<![CDATA[
+		  Delete from product where PRODUCT_IDX = #{productIdx}
+		]]>
+  	</delete>
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="JJimMapper">
+  <insert id="jjimOn">
+  	<![CDATA[
+  		INSERT INTO jjim(store_idx, product_idx) VALUES(#{storeIdx}, #{productIdx})
+  	]]>
+  </insert>
+  <delete id="jjimOff">
+  	<![CDATA[
+  		DELETE FROM jjim WHERE store_idx = #{storeIdx} AND product_idx = #{productIdx}
+  	]]>
+  </delete>
+  <select id="getJJimCnt" resultType="Integer">
+  	<![CDATA[
+  		SELECT  COUNT(*) AS "jjimCnt"
+		FROM    jjim
+		WHERE   store_idx = #{storeIdx}
+  	]]>
+  </select>
+</mapper>

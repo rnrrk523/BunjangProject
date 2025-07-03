@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StoreProductMapper">
+    <select id="getStoreProductInfo" resultType="com.sh.dto.ProductDto">
+        <![CDATA[
+        	SELECT 
+			    PRODUCT_IDX AS productIdx,
+			    PRODUCT_NAME AS productName,
+			    PRODUCT_IMG1 AS productImg,
+			    PRICE AS price,
+			    CASE 
+                    WHEN (SYSDATE - sale_start_date) * 24 * 60 * 60 < 60 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - sale_start_date) * 24 * 60 * 60)) || '초 전'
+                    WHEN (SYSDATE - sale_start_date) * 24 * 60 < 60 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - sale_start_date) * 24 * 60)) || '분 전'
+                    WHEN (SYSDATE - sale_start_date) * 24 < 24 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - sale_start_date) * 24)) || '시간 전'
+                    WHEN SYSDATE - sale_start_date >= 7 AND SYSDATE - sale_start_date < 30 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - sale_start_date) / 7)) || '주 전'
+                    WHEN SYSDATE - sale_start_date >= 30 AND SYSDATE - sale_start_date < 365 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - sale_start_date) / 30)) || '달 전'
+                    WHEN SYSDATE - sale_start_date >= 365 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - sale_start_date) / 365)) || '년 전'
+                    ELSE 
+                        TO_CHAR(FLOOR(SYSDATE - sale_start_date)) || '일 전'
+                	END   AS startDate
+			FROM PRODUCT
+			where store_idx=#{storeIdx}
+			${category}
+			ORDER BY ${sort} 
+        ]]>
+    </select>
+     <select id="getStoreProductFameInfo" resultType="com.sh.dto.ProductDto">
+        <![CDATA[
+        	SELECT 
+			    p.PRODUCT_IDX AS productIdx,
+			    p.PRODUCT_NAME AS productName,
+			    p.PRODUCT_IMG1 AS productImg,
+			    p.PRICE AS price,
+		     	CASE 
+                    WHEN (SYSDATE - p.sale_start_date) * 24 * 60 * 60 < 60 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24 * 60 * 60)) || '초 전'
+                    WHEN (SYSDATE - p.sale_start_date) * 24 * 60 < 60 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24 * 60)) || '분 전'
+                    WHEN (SYSDATE - p.sale_start_date) * 24 < 24 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24)) || '시간 전'
+                    WHEN SYSDATE - p.sale_start_date >= 7 AND SYSDATE - p.sale_start_date < 30 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 7)) || '주 전'
+                    WHEN SYSDATE - p.sale_start_date >= 30 AND SYSDATE - p.sale_start_date < 365 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 30)) || '달 전'
+                    WHEN SYSDATE - p.sale_start_date >= 365 THEN 
+                        TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 365)) || '년 전'
+                    ELSE 
+                        TO_CHAR(FLOOR(SYSDATE - p.sale_start_date)) || '일 전'
+                	END   AS startDate,
+			    COALESCE(cp.viewCount, 0) AS viewCount
+			FROM PRODUCT p
+			LEFT JOIN (
+			    SELECT PRODUCT_IDX, COUNT(*) AS viewCount
+			    FROM CHECK_PRODUCT
+			    GROUP BY PRODUCT_IDX
+			) cp ON p.PRODUCT_IDX = cp.PRODUCT_IDX
+			WHERE p.STORE_IDX = #{storeIdx}
+			${category}
+			ORDER BY viewCount DESC
+        ]]>
+    </select>
+    <select id="getStoreProductCategoryInfo" resultType="com.sh.dto.ProductDto">
+    <![CDATA[
+    	SELECT DISTINCT
+		    AC.CATEGORY_NAME AS categoryName,
+		    AC.CATEGORY_IDX AS categoryIdx
+		FROM PRODUCT P
+		INNER JOIN ALL_CATEGORIES AC ON P.ALL_CATEGORY_IDX = AC.CATEGORY_IDX
+		WHERE P.STORE_IDX = #{storeIdx}
+     ]]>
+    </select>
+    <select id="countProductsByStore" resultType="int">
+     <![CDATA[
+	    SELECT COUNT(PRODUCT_IDX)
+	    FROM PRODUCT
+	    WHERE STORE_IDX = #{storeIdx}
+	    ${category}
+    ]]>
+	</select>
+</mapper>

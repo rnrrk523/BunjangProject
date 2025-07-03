@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StoreJjimMapper">
+    <select id="getStoreJjimInfo" parameterType="int" resultType="com.sh.dto.JjimDto">
+        <![CDATA[
+            SELECT 
+            	P.PRODUCT_IDX AS productIdx,
+		        P.PRODUCT_NAME AS productName,
+		        P.PRICE AS price,
+		        P.PRODUCT_IMG1 AS productImg1,
+		        CASE 
+                     WHEN (SYSDATE - p.sale_start_date) * 24 * 60 * 60 < 60 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24 * 60 * 60)) || '초 전'
+                     WHEN (SYSDATE - p.sale_start_date) * 24 * 60 < 60 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24 * 60)) || '분 전'
+                     WHEN (SYSDATE - p.sale_start_date) * 24 < 24 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24)) || '시간 전'
+                     WHEN SYSDATE - p.sale_start_date >= 7 AND SYSDATE - p.sale_start_date < 30 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 7)) || '주 전'
+                     WHEN SYSDATE - p.sale_start_date >= 30 AND SYSDATE - p.sale_start_date < 365 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 30)) || '달 전'
+                     WHEN SYSDATE - p.sale_start_date >= 365 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 365)) || '년 전'
+                     ELSE 
+                         TO_CHAR(FLOOR(SYSDATE - p.sale_start_date)) || '일 전'
+                 	END  AS saleStartDate
+		    FROM 
+		        jjim J
+		    JOIN 
+		        PRODUCT P ON J.PRODUCT_IDX = P.PRODUCT_IDX
+		    WHERE 
+		        J.STORE_IDX = #{storeIdx}
+		    AND	p.sale_yn = 'N'
+		        ORDER BY ${sort}
+        ]]>
+    </select>
+    <select id="getStoreJjimFameInfo" parameterType="int" resultType="com.sh.dto.JjimDto">
+        <![CDATA[
+            SELECT 
+            	P.PRODUCT_IDX AS productIdx,
+		        P.PRODUCT_NAME AS productName,
+		        P.PRICE AS price,
+		        P.PRODUCT_IMG1 AS productImg1,
+		        CASE 
+                     WHEN (SYSDATE - p.sale_start_date) * 24 * 60 * 60 < 60 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24 * 60 * 60)) || '초 전'
+                     WHEN (SYSDATE - p.sale_start_date) * 24 * 60 < 60 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24 * 60)) || '분 전'
+                     WHEN (SYSDATE - p.sale_start_date) * 24 < 24 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) * 24)) || '시간 전'
+                     WHEN SYSDATE - p.sale_start_date >= 7 AND SYSDATE - p.sale_start_date < 30 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 7)) || '주 전'
+                     WHEN SYSDATE - p.sale_start_date >= 30 AND SYSDATE - p.sale_start_date < 365 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 30)) || '달 전'
+                     WHEN SYSDATE - p.sale_start_date >= 365 THEN 
+                         TO_CHAR(FLOOR((SYSDATE - p.sale_start_date) / 365)) || '년 전'
+                     ELSE 
+                         TO_CHAR(FLOOR(SYSDATE - p.sale_start_date)) || '일 전'
+                 	END  AS saleStartDate,
+                COALESCE(cp.viewCount, 0) AS viewCount
+		    FROM 
+		        jjim J
+		    JOIN 
+		        PRODUCT P ON J.PRODUCT_IDX = P.PRODUCT_IDX
+	        LEFT JOIN (
+			    SELECT PRODUCT_IDX, COUNT(*) AS viewCount
+			    FROM CHECK_PRODUCT
+			    GROUP BY PRODUCT_IDX
+			) cp ON p.PRODUCT_IDX = cp.PRODUCT_IDX
+		    WHERE 
+		        J.STORE_IDX = #{storeIdx}
+		    AND	p.sale_yn = 'N'
+		        ORDER BY viewCount DESC
+        ]]>
+    </select>
+     <delete id="deleteStoreJjim">
+     	<![CDATA[
+	     	DELETE FROM JJIM
+		    WHERE STORE_IDX = #{storeIdx}
+		    AND PRODUCT_IDX = #{productIdx}
+      	]]>
+     </delete>
+</mapper>

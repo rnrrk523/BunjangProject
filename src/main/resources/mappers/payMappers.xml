@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PayMapper">
+  <insert id="putSaleHistory">
+  	<![CDATA[
+  		INSERT INTO sale_history(seller_idx, buyer_idx, product_idx, sale_status, saleHistory_idx) VALUES(#{sellerIdx}, #{buyerIdx}, #{productIdx}, #{stateStr}, SALEHISTORY_SEQ.nextval)
+  	]]>
+  </insert>
+  <update id="updateSaleYN">
+  	<![CDATA[
+  		UPDATE product SET sale_yn = 'Y' WHERE product_idx = #{productIdx}
+  	]]>
+  </update>
+  <delete id="deleteJJim">
+  	<![CDATA[
+  		DELETE FROM jjim WHERE product_idx = #{productIdx}
+  	]]>
+  </delete>
+</mapper>

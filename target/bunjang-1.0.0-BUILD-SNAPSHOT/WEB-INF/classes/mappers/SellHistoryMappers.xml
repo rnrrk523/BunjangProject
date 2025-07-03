@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SellHistoryMapper">
+    <select id="getSellHistoryInfo" resultType="com.sh.dto.BuySellDto">
+        <![CDATA[
+            	SELECT
+				    TO_CHAR(SALE_DATE, 'YY-MM-DD') AS saleDate,
+				    SH.sale_status AS saleStatus,
+				    SH.product_idx AS productIdx,
+				    P.PRICE AS price,
+				    P.PRODUCT_INFO AS productInfo,
+				    P.PRODUCT_IMG1 AS productImg,
+				    P.PRODUCT_NAME AS productName,
+				    S.store_name AS storeName
+				FROM SALE_HISTORY SH
+				INNER JOIN PRODUCT P ON SH.PRODUCT_IDX = P.PRODUCT_IDX
+				INNER JOIN STORE S ON P.STORE_IDX = S.STORE_IDX
+				WHERE seller_idx = #{storeIdx}
+				${search}
+        ]]>
+    </select>
+</mapper>

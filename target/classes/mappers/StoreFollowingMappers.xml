@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StoreFollowingMapper">
+    <select id="getStoreFollowingInfo" parameterType="int" resultType="com.sh.dto.FollowingStoreDto">
+        <![CDATA[
+            SELECT
+			    S.STORE_IDX AS StoreIdx,
+			    S.STORE_NAME AS StoreName,
+			    S.PROFILE_IMG AS profileImg,
+			    (SELECT COUNT(*) FROM follow F2 WHERE F2.STORE_IDX = S.STORE_IDX) AS followerCount,
+			    (SELECT COUNT(*) FROM PRODUCT P WHERE P.STORE_IDX = S.STORE_IDX) AS productCount,
+			    CASE 
+			        WHEN EXISTS (
+			            SELECT 1 FROM follow F3
+			            WHERE F3.FOLLOW_STORE_IDX = #{myStoreIdx}
+			              AND F3.STORE_IDX = S.STORE_IDX
+			        ) THEN 'Y'
+			        ELSE 'N'
+			    END AS followingYN
+			FROM STORE S
+			WHERE S.STORE_IDX IN (
+			    SELECT F.STORE_IDX FROM follow F WHERE F.FOLLOW_STORE_IDX = #{storeIdx}
+			)
+        ]]>
+    </select>
+</mapper>

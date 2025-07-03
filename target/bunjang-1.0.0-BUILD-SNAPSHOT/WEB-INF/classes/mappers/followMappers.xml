@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="FollowMapper">
+  <insert id="followOn">
+  	<![CDATA[
+  		INSERT INTO follow(store_idx, follow_store_idx) VALUES(#{storeIdx}, #{followStoreIdx})
+  	]]>
+  </insert>
+  <delete id="followOff">
+  	<![CDATA[
+  		DELETE FROM follow WHERE store_idx = #{storeIdx} AND follow_store_idx = #{followStoreIdx}
+  	]]>
+  </delete>
+  <select id="followCheck" resultType="Integer">
+  	<![CDATA[
+  		SELECT NVL(
+		    (SELECT 1 
+		    FROM follow f 
+		    WHERE f.store_idx = #{storeIdx}
+		    AND f.follow_store_idx = #{viewStoreIdx}
+		    ), 0
+		)
+		FROM dual
+  	]]>
+  </select>
+</mapper>

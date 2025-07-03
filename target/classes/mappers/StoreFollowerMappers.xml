@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StoreFollowerMapper">
+    <select id="getStoreFollowerInfo" parameterType="int" resultType="com.sh.dto.StoreDto">
+        <![CDATA[
+            SELECT 
+			    S.STORE_IDX AS StoreIdx,
+			    S.STORE_NAME AS StoreName, 
+			    S.PROFILE_IMG AS profileImg,
+			    NVL((
+			        SELECT TRUNC(AVG(R.START_CNT)) 
+			        FROM reviews R 
+			        WHERE R.store_idx = S.STORE_IDX
+			    ), 0) AS AvgStartIdx,
+			    (SELECT COUNT(*) 
+			     FROM follow F2 
+			     WHERE F2.FOLLOW_STORE_IDX = S.STORE_IDX) AS followerCount,
+			    (SELECT COUNT(*) 
+			     FROM PRODUCT P 
+			     WHERE P.STORE_IDX = S.STORE_IDX) AS productCount
+			FROM follow F
+			LEFT JOIN STORE S 
+			ON F.follow_STORE_IDX = S.STORE_IDX
+			WHERE f.STORE_IDX = #{storeIdx}
+        ]]>
+    </select>
+</mapper>
