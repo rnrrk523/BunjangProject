@@ -1,0 +1,11 @@
+# 빌드 결과물 제외
+/target/
+
+# Eclipse IDE 설정파일 제외
+/.settings/
+/.classpath
+.project
+
+# 기타 임시파일 제외
+*.log
+.DS_Store
